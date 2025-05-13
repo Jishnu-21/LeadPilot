@@ -1,0 +1,5 @@
+<svg width="200" height="50" viewBox="0 0 200 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <path d="M10 10H30V40H10V10Z" fill="#0070F3"/>
+  <path d="M35 15H45V35H35V15Z" fill="#0070F3"/>
+  <text x="55" y="33" font-family="Arial" font-weight="bold" font-size="24" fill="#0A1930">LeadPilot</text>
+</svg>
