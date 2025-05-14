@@ -74,7 +74,7 @@ export default function Features() {
   ];
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-white to-[#A3B8CC]/10">
+    <section id="features" className="py-20 px-4 bg-gradient-to-b from-white to-[#A3B8CC]/10">
       <motion.div 
         className="max-w-6xl mx-auto"
         initial="hidden"

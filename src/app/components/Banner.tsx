@@ -1,206 +1,269 @@
 "use client";
 
-import Image from 'next/image';
 import Link from 'next/link';
-import { motion } from 'framer-motion';
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Lead Pilot Color Scheme
-// Electric Blue: #0070f3
-// White: #ffffff
-// Navy: #0a1930
-// Slate: #64748b
+interface BannerProps {
+  onStartDemo: () => void;
+}
 
-export default function Banner() {
-  const [inputValue, setInputValue] = useState('');
+export default function Banner({ onStartDemo }: BannerProps) {
+  const [currentStep, setCurrentStep] = useState(0); // Start with welcome screen (step 0)
+  const [dropdownOpen, setDropdownOpen] = useState<{[key: string]: boolean}>({
+    profession: false,
+    targetAudience: false,
+    offering: false
+  });
   
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setInputValue(e.target.value);
+  const professionRef = useRef<HTMLDivElement>(null);
+  const targetAudienceRef = useRef<HTMLDivElement>(null);
+  const offeringRef = useRef<HTMLDivElement>(null);
+  
+  const [formData, setFormData] = useState({
+    profession: '',
+    targetAudience: '',
+    offering: '',
+    region: '',
+    message: '',
+    platform: 'LinkedIn'
+  });
+  
+  // Animation variants
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.1,
+        delayChildren: 0.2,
+        duration: 0.5
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { y: 30, opacity: 0 },
+    visible: {
+      y: 0,
+      opacity: 1,
+      transition: { duration: 0.5, ease: "easeOut" }
+    }
+  };
+  
+  // Position calculation for dropdowns
+  const [dropdownPositions, setDropdownPositions] = useState({
+    profession: { top: 0, left: 0, width: 0 },
+    targetAudience: { top: 0, left: 0, width: 0 },
+    offering: { top: 0, left: 0, width: 0 }
+  });
+  
+  useEffect(() => {
+    // Update position when a dropdown is opened
+    if (dropdownOpen.profession && professionRef.current) {
+      const rect = professionRef.current.getBoundingClientRect();
+      setDropdownPositions(prev => ({
+        ...prev,
+        profession: {
+          top: rect.bottom + window.scrollY,
+          left: rect.left,
+          width: professionRef.current?.offsetWidth || 0
+        }
+      }));
+    }
+    
+    if (dropdownOpen.targetAudience && targetAudienceRef.current) {
+      const rect = targetAudienceRef.current.getBoundingClientRect();
+      setDropdownPositions(prev => ({
+        ...prev,
+        targetAudience: {
+          top: rect.bottom + window.scrollY,
+          left: rect.left,
+          width: targetAudienceRef.current?.offsetWidth || 0
+        }
+      }));
+    }
+    
+    if (dropdownOpen.offering && offeringRef.current) {
+      const rect = offeringRef.current.getBoundingClientRect();
+      setDropdownPositions(prev => ({
+        ...prev,
+        offering: {
+          top: rect.bottom + window.scrollY,
+          left: rect.left,
+          width: offeringRef.current?.offsetWidth || 0
+        }
+      }));
+    }
+  }, [dropdownOpen.profession, dropdownOpen.targetAudience, dropdownOpen.offering]);
+  
+  // Close dropdown when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (professionRef.current && !professionRef.current.contains(event.target as Node)) {
+        setDropdownOpen(prev => ({...prev, profession: false}));
+      }
+      if (targetAudienceRef.current && !targetAudienceRef.current.contains(event.target as Node)) {
+        setDropdownOpen(prev => ({...prev, targetAudience: false}));
+      }
+      if (offeringRef.current && !offeringRef.current.contains(event.target as Node)) {
+        setDropdownOpen(prev => ({...prev, offering: false}));
+      }
+    };
+    
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+  
+  const toggleDropdown = (field: string) => {
+    setDropdownOpen(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+  
+  const handleInputChange = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+  };
+  
+  const handleSelectOption = (field: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      [field]: value
+    }));
+    setDropdownOpen(prev => ({...prev, [field]: false}));
+  };
+  
+  const startDemo = () => {
+    // Call the prop function directly instead of dispatching an event
+    onStartDemo();
+  };
+  
+  const handleNextStep = () => {
+    if (currentStep < 6) {
+      setCurrentStep(currentStep + 1);
+    }
+  };
+  
+  const handlePrevStep = () => {
+    if (currentStep > 1) {
+      setCurrentStep(currentStep - 1);
+    }
   };
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputValue.trim()) {
-      console.log('Submitted:', inputValue);
-      // Here you would typically send the input to your AI processing
-      // For now we'll just clear the input
-      setInputValue('');
-    }
+    console.log('Submitted data:', formData);
+    // Here you would typically process the data and generate leads
   };
-  // Animation variants
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: { 
-      opacity: 1,
-      transition: { 
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-        duration: 0.5 
-      } 
-    }
-  };
+
+  // Suggestions for autocomplete fields
+  const professionSuggestions = [
+    "Marketing Manager", 
+    "Sales Executive", 
+    "Software Engineer", 
+    "Business Consultant", 
+    "Entrepreneur",
+    "Product Manager",
+    "Digital Marketing Specialist",
+    "Data Analyst",
+    "UX/UI Designer",
+    "Finance Director"
+  ];
   
-  const itemVariants = {
-    hidden: { y: 20, opacity: 0 },
-    visible: { 
-      y: 0, 
-      opacity: 1,
-      transition: { duration: 0.5, ease: "easeOut" } 
-    }
-  };
+  const targetAudienceSuggestions = [
+    "Small Business Owners", 
+    "Corporate Executives", 
+    "Tech Startups", 
+    "E-commerce Brands", 
+    "Healthcare Professionals",
+    "Educational Institutions",
+    "Marketing Agencies",
+    "Real Estate Investors",
+    "SaaS Companies",
+    "Manufacturing Companies"
+  ];
   
-  const decorativeVariants = {
-    hidden: { scale: 0.8, opacity: 0 },
-    visible: { 
-      scale: 1, 
-      opacity: [0, 0.3, 0.5],
-      transition: { duration: 0.8, ease: "easeOut" } 
-    }
-  };
+  const offeringSuggestions = [
+    "Consulting Services", 
+    "SaaS Platform", 
+    "Marketing Solutions", 
+    "Custom Development", 
+    "Training Programs",
+    "Digital Transformation",
+    "Data Analytics",
+    "Automation Solutions",
+    "Managed IT Services",
+    "Project Management"
+  ];
   
   return (
-    <motion.div 
-      className="relative overflow-hidden bg-[#0a1930] min-h-screen flex flex-col justify-center"
-      initial="hidden"
-      animate="visible"
-      variants={containerVariants}
-    >
-      {/* Background decorative elements */}
-      <motion.div 
-        className="absolute top-0 right-0 w-1/2 h-full opacity-20"
-        variants={decorativeVariants}
-      >
-        <div className="w-full h-full bg-[#0070f3] rounded-full blur-3xl transform translate-x-1/4 -translate-y-1/4"></div>
-      </motion.div>
+    <div className="py-16 min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-white">
+      {/* Clean white background with subtle pattern */}
+      <div className="absolute inset-0 bg-white z-0"></div>
+      
+      {/* Subtle grid pattern overlay */}
+      <div className="absolute inset-0 z-0 opacity-5" 
+        style={{
+          backgroundImage: `linear-gradient(var(--electric-blue) 1px, transparent 1px), linear-gradient(90deg, var(--electric-blue) 1px, transparent 1px)`,
+          backgroundSize: '40px 40px'
+        }}>
+      </div>
+      
+      {/* Subtle accent elements */}
+      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#0070f3]/5 rounded-full blur-[100px] z-0 animate-pulse"></div>
+      <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-[#0070f3]/5 rounded-full blur-[100px] z-0 animate-pulse" style={{animationDelay: '1s'}}></div>
+      
+      {/* Subtle divider */}
+      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#0070f3]/20 to-transparent"></div>
       
       <motion.div 
-        className="absolute bottom-0 left-0 w-1/3 h-1/2 opacity-20"
-        variants={decorativeVariants}
-        transition={{ delay: 0.3 }}
+        className="max-w-4xl w-full mx-auto px-4 sm:px-6 relative z-10"
+        initial="hidden"
+        whileInView="visible"
+        viewport={{ once: true, amount: 0.2 }}
+        variants={containerVariants}
       >
-        <div className="w-full h-full bg-[#64748b] rounded-full blur-2xl transform -translate-x-1/4 translate-y-1/4"></div>
-      </motion.div>
-      
-      <div className="max-w-6xl mx-auto px-6 relative z-10">
+        {/* Welcome Section (Centered) */}
         <motion.div 
-          className="flex flex-col items-center w-full" 
+          className="text-center mb-16"
           variants={itemVariants}
         >
           <motion.div 
-            className="mb-6 w-full"
-            variants={itemVariants}
+            className="inline-block px-4 py-1 bg-[#0070f3]/10 text-[#0070f3] rounded-full text-sm mb-4 font-medium"
+            initial={{ opacity: 0, y: -20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.2 }}
           >
-            <div className="relative w-full max-w-3xl mx-auto mb-4 text-center">
-              <div className="inline-block px-4 py-1 mb-4 rounded-full bg-[#0070f3]/20 backdrop-blur-sm border border-[#0070f3]/30">
-                <span className="text-sm font-medium text-white">AI-Powered Lead Generation <span className="ml-1 text-[#0070f3]">→</span></span>
-              </div>
-              <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold text-white mb-2">
-                <span className="text-[#0070f3]">Lead</span>Pilot
+            Try for free now →
+          </motion.div>
+          
+          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-black tracking-tight leading-none mb-6">
+            Introducing the <span className="text-[#0070f3]">LeadPilot</span>
               </h1>
-            </div>
-            <motion.h2 
-              className="text-base md:text-lg text-center font-medium text-[#64748b] mt-1 mb-4"
-              variants={itemVariants}
-            >
-              Supercharge your outreach with AI-powered lead generation
-            </motion.h2>
-          </motion.div>
           
-          <motion.p 
-            className="text-[#64748b] text-sm md:text-base mb-4 max-w-2xl leading-relaxed text-center mx-auto"
-            variants={itemVariants}
-          >
-            Find the perfect leads and connect with them using 
-            <span className="text-white font-medium"> personalized AI-generated outreach</span>.
-          </motion.p>
+          <p className="text-lg md:text-xl text-black max-w-2xl mx-auto mb-10">
+            LeadPilot helps you discover real companies and send personalized GPT outreach – instantly.
+          </p>
           
-          <motion.div 
-            className="flex justify-center"
-            variants={itemVariants}
+          <motion.button
+            onClick={startDemo}
+            className="inline-flex cursor-pointer items-center bg-[#0070f3] text-white px-8 py-3 rounded-md hover:bg-[#0060d3] transition-all duration-300 font-medium text-base"
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
           >
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-            >
-              <Link 
-                href="/signup" 
-                className="bg-white text-[#0a1930] px-8 py-2.5 rounded-full hover:bg-white/90 transition-all duration-300 font-medium flex items-center justify-center gap-2 shadow-lg text-sm"
-              >
-                Get Started
-              </Link>
-            </motion.div>
-          </motion.div>
-        </motion.div>
-      </div>
-      
-      {/* Small logo/badge in the corner */}
-      <motion.div 
-        className="absolute bottom-6 right-6 hidden md:block"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1, duration: 0.5 }}
-      >
-        <div className="bg-gradient-to-br from-[#0070f3]/20 to-[#64748b]/10 backdrop-blur-md p-3 rounded-full shadow-lg border border-white/10">
-          <Image 
-            src="/leadpilot-logo.svg" 
-            alt="LeadPilot Logo" 
-            width={36} 
-            height={36} 
-            className="invert"
-          />
-        </div>
-      </motion.div>
-      
-      {/* Chat prompt-like element */}
-      <motion.div 
-        className="mt-8 w-full max-w-2xl mx-auto"
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.8, duration: 0.5 }}
-      >
-        <div className="bg-white/10 backdrop-blur-sm rounded-xl shadow-xl mx-4 overflow-hidden border border-white/20">
-          <div className="flex items-center p-3 border-b border-white/10">
-            <div className="w-2 h-2 bg-red-400 rounded-full mr-2"></div>
-            <div className="w-2 h-2 bg-yellow-400 rounded-full mr-2"></div>
-            <div className="w-2 h-2 bg-green-400 rounded-full mr-2"></div>
-            <div className="flex-1 text-center">
-            </div>
-          </div>
-          <div className="p-3 bg-white/5">
-            <form onSubmit={handleSubmit} className="flex items-center">
-              <div className="flex-1 relative group">
-                <input 
-                  type="text" 
-                  placeholder="Try Demo" 
-                  className="w-full p-2.5 rounded-md bg-white/10 border border-white/20 focus:outline-none focus:ring-1 focus:ring-[#0070f3] text-white text-sm placeholder-white/50 transition-all duration-200 group-hover:bg-white/15"
-                  value={inputValue}
-                  onChange={handleInputChange}
-                />
-                {inputValue && (
-                  <button 
-                    type="button"
-                    className="absolute right-2 top-1/2 transform -translate-y-1/2 text-white/40 hover:text-white/70"
-                    onClick={() => setInputValue('')}
-                  >
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-                    </svg>
-                  </button>
-                )}
-              </div>
-              <button 
-                type="submit" 
-                className={`ml-2 p-2.5 rounded-full flex items-center justify-center transition-all duration-200 ${inputValue.trim() ? 'bg-white text-[#0a1930] hover:bg-white/90 shadow-md' : 'bg-white/30 text-white/50 cursor-not-allowed'}`}
-                disabled={!inputValue.trim()}
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                  <path d="M10.894 2.553a1 1 0 00-1.788 0l-7 14a1 1 0 001.169 1.409l5-1.429A1 1 0 009 15.571V11a1 1 0 112 0v4.571a1 1 0 00.725.962l5 1.428a1 1 0 001.17-1.408l-7-14z" />
+            Start Demo
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
+                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
                 </svg>
-              </button>
-            </form>
-          </div>
-        </div>
+          </motion.button>
+        </motion.div>
       </motion.div>
-    </motion.div>
+    </div>
   );
 }
