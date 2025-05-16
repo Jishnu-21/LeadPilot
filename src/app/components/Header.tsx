@@ -23,14 +23,22 @@ export default function Header() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
   
+  // Reference for the menu button
+  const menuButtonRef = useRef<HTMLButtonElement>(null);
+
   // Close mobile menu when clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
-      // Make sure the click is not on the toggle button itself
       const target = event.target as Node;
-      const isMenuButton = target.parentElement?.classList.contains('mobile-menu-button');
       
-      if (menuRef.current && !menuRef.current.contains(target) && !isMenuButton) {
+      // Check if the click is on the menu button or its children
+      const isMenuButtonClick = menuButtonRef.current && 
+        (menuButtonRef.current === target || menuButtonRef.current.contains(target));
+      
+      // Only close the menu if the click is outside both the menu and the button
+      if (menuRef.current && 
+          !menuRef.current.contains(target) && 
+          !isMenuButtonClick) {
         setMobileMenuOpen(false);
       }
     };
@@ -55,9 +63,10 @@ export default function Header() {
     };
   }, []);
   
-  // Toggle mobile menu
+  // Toggle mobile menu with improved handling
   const toggleMobileMenu = () => {
-    setMobileMenuOpen(!mobileMenuOpen);
+    // Use a function to ensure we're working with the latest state
+    setMobileMenuOpen(prevState => !prevState);
   };
 
   // Animation variants
@@ -153,28 +162,32 @@ export default function Header() {
         {/* Mobile Menu Button */}
         <div className="md:hidden">
           <button 
+            ref={menuButtonRef}
             onClick={toggleMobileMenu}
-            className="mobile-menu-button flex flex-col justify-center items-center w-10 h-10 focus:outline-none"
+            className="relative z-50 flex flex-col justify-center items-center w-10 h-10 focus:outline-none focus:ring-2 focus:ring-blue-200 rounded-md"
             aria-label="Toggle mobile menu"
+            aria-expanded={mobileMenuOpen}
           >
-            <motion.div
-              className="w-6 h-0.5 bg-gray-800 mb-1.5"
-              variants={topLineVariants}
-              animate={mobileMenuOpen ? 'open' : 'closed'}
-              transition={{ duration: 0.3 }}
-            />
-            <motion.div
-              className="w-6 h-0.5 bg-gray-800 mb-1.5"
-              variants={middleLineVariants}
-              animate={mobileMenuOpen ? 'open' : 'closed'}
-              transition={{ duration: 0.3 }}
-            />
-            <motion.div
-              className="w-6 h-0.5 bg-gray-800"
-              variants={bottomLineVariants}
-              animate={mobileMenuOpen ? 'open' : 'closed'}
-              transition={{ duration: 0.3 }}
-            />
+            <div className="relative w-6 h-5">
+              <motion.div
+                className="w-6 h-0.5 bg-gray-800 absolute top-0"
+                variants={topLineVariants}
+                animate={mobileMenuOpen ? 'open' : 'closed'}
+                transition={{ duration: 0.3 }}
+              />
+              <motion.div
+                className="w-6 h-0.5 bg-gray-800 absolute top-2"
+                variants={middleLineVariants}
+                animate={mobileMenuOpen ? 'open' : 'closed'}
+                transition={{ duration: 0.3 }}
+              />
+              <motion.div
+                className="w-6 h-0.5 bg-gray-800 absolute top-4"
+                variants={bottomLineVariants}
+                animate={mobileMenuOpen ? 'open' : 'closed'}
+                transition={{ duration: 0.3 }}
+              />
+            </div>
           </button>
         </div>
       </div>
@@ -184,7 +197,7 @@ export default function Header() {
         <AnimatePresence>
           {mobileMenuOpen && (
             <motion.div
-              className="md:hidden overflow-hidden bg-white shadow-lg z-50"
+              className="md:hidden overflow-hidden bg-white shadow-lg z-40 absolute left-0 right-0 top-[80px]"
               initial="closed"
               animate="open"
               exit="closed"

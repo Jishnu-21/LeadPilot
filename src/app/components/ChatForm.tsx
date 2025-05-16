@@ -161,17 +161,23 @@ export default function ChatForm({ onClose }: ChatFormProps) {
           </div>
 
           {isComplete ? (
-            <div className="space-y-6 p-4">
-              <div className="text-center">
+            <div className="p-4 sm:p-6">
+              <div className="text-center mb-6">
                 <h3 className="font-bold text-xl text-gray-900">Ready to Generate Your Leads</h3>
                 <p className="text-gray-600 mt-1">We'll use your responses to create personalized outreach campaigns.</p>
-                <ul className="space-y-2 mt-4">
+              </div>
+              
+              <div className="bg-gray-50 rounded-xl p-4 sm:p-6 mb-6">
+                <h4 className="font-medium text-gray-700 mb-4 border-b pb-2">Your Responses</h4>
+                <ul className="space-y-4">
                   {questions.map((question, idx) => (
-                    <li key={idx} className="flex">
-                      <span className="font-medium text-gray-700 mr-2">{idx + 1}.</span>
-                      <div>
-                        <p className="text-sm text-gray-600">{question}</p>
-                        <p className="font-medium text-gray-900">{answers[idx]}</p>
+                    <li key={idx} className="border-b border-gray-100 pb-3 last:border-0">
+                      <div className="flex items-start">
+                        <span className="flex-shrink-0 w-6 h-6 bg-[#0070f3] rounded-full text-white flex items-center justify-center text-xs font-medium mr-3 mt-0.5">{idx + 1}</span>
+                        <div className="flex-1">
+                          <p className="text-sm text-gray-600 mb-1">{question}</p>
+                          <p className="font-medium text-gray-900">{answers[idx]}</p>
+                        </div>
                       </div>
                     </li>
                   ))}
@@ -181,9 +187,9 @@ export default function ChatForm({ onClose }: ChatFormProps) {
               <div className="text-center">
                 <button
                   onClick={handleFinalSubmit}
-                  className="bg-[#0070f3] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#0060d3] transition-colors"
+                  className="bg-gradient-to-r from-[#0070f3] to-[#2563eb] text-white px-6 py-3 rounded-lg font-medium hover:from-[#0060d3] hover:to-[#1e40af] transition-colors shadow-md"
                 >
-                  Submit
+                  Generate Leads
                 </button>
               </div>
             </div>
@@ -208,13 +214,12 @@ export default function ChatForm({ onClose }: ChatFormProps) {
                         animate={{ opacity: 1, x: 0 }}
                         transition={{ duration: 0.3, delay: idx * 0.1 + 0.1 }}
                       >
-                        <div className="w-8 h-8 bg-[#0070f3] rounded-md flex items-center justify-center flex-shrink-0">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
-                          </svg>
+                        <div className="w-8 h-8 bg-gradient-to-r from-[#0070f3] to-[#5f3dc4] rounded-md flex items-center justify-center flex-shrink-0 shadow-sm">
+                          {/* LeadPilot logo - simplified version for the icon */}
+                          <span className="text-xs font-bold text-white">LP</span>
                         </div>
                         <div className="bg-gray-100 rounded-lg px-4 py-2 text-gray-800 max-w-[80%]">
-                          <p>{questions[idx]}</p>
+                          <p className="font-medium">{questions[idx]}</p>
                         </div>
                       </motion.div>
                       

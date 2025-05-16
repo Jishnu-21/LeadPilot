@@ -204,7 +204,7 @@ export default function Banner({ onStartDemo }: BannerProps) {
   
   return (
     <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-white pt-16 pb-8 md:py-0">
-      {/* Background with blue wave pattern */}
+      {/* Background with blue wave pattern - enhanced for mobile */}
       <div 
         className="absolute inset-0 z-0"
         style={{
@@ -212,12 +212,22 @@ export default function Banner({ onStartDemo }: BannerProps) {
           backgroundSize: 'cover',
           backgroundPosition: 'center bottom',
           backgroundRepeat: 'no-repeat',
-          opacity: 0.7
+          opacity: '0.9', /* Increased opacity for better visibility */
+          filter: 'contrast(1.1) brightness(1.05)' /* Enhanced contrast and brightness */
         }}
       ></div>
       
-      {/* More noticeable drop shadow at the very end */}
-      <div className="absolute -bottom-12 left-0 right-0 h-24 bg-gradient-to-t from-white/20 to-transparent z-0"></div>
+      {/* Additional overlay gradient for mobile to enhance wave visibility */}
+      <div 
+        className="absolute inset-0 z-0 md:hidden"
+        style={{
+          background: 'linear-gradient(to bottom, rgba(255,255,255,0.2), rgba(66, 153, 225, 0.15))',
+          mixBlendMode: 'overlay'
+        }}
+      ></div>
+      
+      {/* More noticeable drop shadow at the very end - enhanced for mobile */}
+      <div className="absolute -bottom-12 left-0 right-0 h-24 bg-gradient-to-t from-white/30 to-transparent z-0"></div>
       
       <motion.div 
         className="max-w-5xl w-full mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 relative z-10"
