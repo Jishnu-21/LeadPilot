@@ -4,7 +4,6 @@ const nextConfig = {
   swcMinify: true,
   // Ensure consistent CSS processing
   experimental: {
-    optimizeCss: true,
     // Prevent CSS variable optimization that can cause inconsistencies
     cssModules: true,
   },
