@@ -39,15 +39,20 @@ export default function ChatForm({ onClose }: ChatFormProps) {
   
   const handleSuggestionClick = (suggestion: string) => {
     setInputValue(suggestion);
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    // Prevent focus to avoid triggering the scroll behavior
+    // We'll still allow the input to be ready for typing, but without scrolling
   };
+  
+  // Keep track of whether we're submitting to prevent scroll
+  const isSubmitting = useRef(false);
   
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     
     if (!inputValue.trim()) return;
+    
+    // Set flag to prevent scrolling on focus
+    isSubmitting.current = true;
     
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = inputValue;
@@ -56,6 +61,11 @@ export default function ChatForm({ onClose }: ChatFormProps) {
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
       setInputValue('');
+      
+      // Reset the flag after a short delay
+      setTimeout(() => {
+        isSubmitting.current = false;
+      }, 500);
     } else {
       setIsComplete(true);
       console.log("All questions answered:", newAnswers);
@@ -77,25 +87,42 @@ export default function ChatForm({ onClose }: ChatFormProps) {
   }, [currentQuestionIndex, isComplete]);
   
   useEffect(() => {
+    // Scroll the chat container itself, not the whole page
     if (chatContainerRef.current) {
       chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
     }
-  }, [currentQuestionIndex, answers]);
+    
+    // Don't auto-focus on mobile after submitting to prevent unwanted scrolling
+    if (inputRef.current && !isComplete && window.innerWidth >= 768) {
+      setTimeout(() => {
+        inputRef.current?.focus();
+      }, 100);
+    }
+  }, [currentQuestionIndex, answers, isComplete]);
   
   // Track if this is the first focus after component mount
   const isFirstFocus = useRef(true);
 
   useEffect(() => {
     const handleFocus = () => {
-      // Only scroll to bottom if it's not the first focus (triggered by initial demo start)
-      if (window.innerWidth < 768 && !isFirstFocus.current) {
-        setTimeout(() => {
+      // Only scroll to bottom if:
+      // 1. It's not the first focus (triggered by initial demo start)
+      // 2. We're not in the middle of submitting
+      // 3. We're on a mobile device
+      if (window.innerWidth < 768 && !isFirstFocus.current && !isSubmitting.current) {
+        // Use a more controlled scroll that doesn't go all the way to the bottom
+        // but just enough to see the input field
+        if (inputRef.current) {
+          const inputRect = inputRef.current.getBoundingClientRect();
+          const scrollPosition = window.scrollY + inputRect.top - (window.innerHeight / 2);
+          
           window.scrollTo({
-            top: document.body.scrollHeight,
+            top: scrollPosition,
             behavior: 'smooth'
           });
-        }, 300);
+        }
       }
+      
       // After first focus, set the flag to false for subsequent focuses
       if (isFirstFocus.current) {
         isFirstFocus.current = false;
