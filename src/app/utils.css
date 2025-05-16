@@ -1,0 +1,81 @@
+/* 
+  Utility CSS file to ensure consistent text sizes and margins
+  between development and production environments
+*/
+
+/* Base text sizes - using rem for consistency */
+.text-base {
+  font-size: 1rem !important;
+  line-height: 1.5 !important;
+}
+
+.text-sm {
+  font-size: 0.875rem !important;
+  line-height: 1.25rem !important;
+}
+
+.text-lg {
+  font-size: 1.125rem !important;
+  line-height: 1.75rem !important;
+}
+
+.text-xl {
+  font-size: 1.25rem !important;
+  line-height: 1.75rem !important;
+}
+
+.text-2xl {
+  font-size: 1.5rem !important;
+  line-height: 2rem !important;
+}
+
+/* Consistent margins */
+.m-base {
+  margin: 1rem !important;
+}
+
+.mx-base {
+  margin-left: 1rem !important;
+  margin-right: 1rem !important;
+}
+
+.my-base {
+  margin-top: 1rem !important;
+  margin-bottom: 1rem !important;
+}
+
+.mt-base {
+  margin-top: 1rem !important;
+}
+
+.mb-base {
+  margin-bottom: 1rem !important;
+}
+
+/* Consistent padding */
+.p-base {
+  padding: 1rem !important;
+}
+
+.px-base {
+  padding-left: 1rem !important;
+  padding-right: 1rem !important;
+}
+
+.py-base {
+  padding-top: 1rem !important;
+  padding-bottom: 1rem !important;
+}
+
+/* Force font weights */
+.font-normal-force {
+  font-weight: 400 !important;
+}
+
+.font-medium-force {
+  font-weight: 500 !important;
+}
+
+.font-bold-force {
+  font-weight: 700 !important;
+}
