@@ -13,6 +13,7 @@ export default function ChatForm({ onClose }: ChatFormProps) {
   const [inputValue, setInputValue] = useState('');
   const [isComplete, setIsComplete] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
   
   const questions = [
     "What do you do professionally?",
@@ -24,12 +25,12 @@ export default function ChatForm({ onClose }: ChatFormProps) {
   ];
   
   const suggestions = {
-    0: ["Marketing Manager", "Sales Executive", "Software Engineer", "Business Consultant", "Entrepreneur"],
-    1: ["Small Business Owners", "Corporate Executives", "Tech Startups", "E-commerce Brands", "Healthcare Professionals"],
-    2: ["Consulting Services", "SaaS Platform", "Marketing Solutions", "Custom Development", "Training Programs"],
-    3: ["United States", "Global", "Europe", "Asia Pacific", "Local (San Francisco)"],
-    4: ["I'd like to introduce my services that can help increase your revenue...", "Our platform has helped similar companies achieve..."],
-    5: ["LinkedIn", "Email", "Twitter", "Instagram", "Facebook"]
+    0: ["SaaS founder", "Marketing agency", "E-commerce business", "Consultant"],
+    1: ["Small businesses", "Enterprise companies", "Startups", "Local shops"],
+    2: ["Marketing services", "Software solution", "Consulting", "Products"],
+    3: ["Local only", "National", "International", "Global"],
+    4: ["Brief introduction", "Value proposition", "Case study", "Special offer"],
+    5: ["Email", "LinkedIn", "Instagram", "Contact form"]
   };
   
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -38,7 +39,6 @@ export default function ChatForm({ onClose }: ChatFormProps) {
   
   const handleSuggestionClick = (suggestion: string) => {
     setInputValue(suggestion);
-    // Focus the input field after setting the value
     if (inputRef.current) {
       inputRef.current.focus();
     }
@@ -49,58 +49,82 @@ export default function ChatForm({ onClose }: ChatFormProps) {
     
     if (!inputValue.trim()) return;
     
-    // Save the current answer
     const newAnswers = [...answers];
     newAnswers[currentQuestionIndex] = inputValue;
     setAnswers(newAnswers);
     
-    // Move to the next question if available
     if (currentQuestionIndex < questions.length - 1) {
       setCurrentQuestionIndex(currentQuestionIndex + 1);
-      setInputValue(''); // Clear input for the next question
+      setInputValue('');
     } else {
-      // All questions answered
       setIsComplete(true);
       console.log("All questions answered:", newAnswers);
     }
   };
 
   const handleFinalSubmit = () => {
-    // Process all answers
     console.log("Final submission with answers:", answers);
-    // Here you would typically send the data to your backend
     alert("Thank you for your responses! Your personalized leads are being generated.");
-    // Close the form after submission
     onClose();
   };
 
-  // Focus input when current question changes
   useEffect(() => {
     if (inputRef.current && !isComplete) {
       setTimeout(() => {
         inputRef.current?.focus();
-      }, 100); // Small delay to ensure DOM is ready
+      }, 100);
     }
   }, [currentQuestionIndex, isComplete]);
+  
+  useEffect(() => {
+    if (chatContainerRef.current) {
+      chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
+    }
+  }, [currentQuestionIndex, answers]);
+  
+  // Track if this is the first focus after component mount
+  const isFirstFocus = useRef(true);
+
+  useEffect(() => {
+    const handleFocus = () => {
+      // Only scroll to bottom if it's not the first focus (triggered by initial demo start)
+      if (window.innerWidth < 768 && !isFirstFocus.current) {
+        setTimeout(() => {
+          window.scrollTo({
+            top: document.body.scrollHeight,
+            behavior: 'smooth'
+          });
+        }, 300);
+      }
+      // After first focus, set the flag to false for subsequent focuses
+      if (isFirstFocus.current) {
+        isFirstFocus.current = false;
+      }
+    };
+    
+    const inputElement = inputRef.current;
+    if (inputElement) {
+      inputElement.addEventListener('focus', handleFocus);
+      return () => {
+        inputElement.removeEventListener('focus', handleFocus);
+      };
+    }
+  }, []);
 
   return (
     <div 
       id="chat-form-section" 
-      className="w-full bg-white py-8 px-4"
+      className="w-full mt-8 sm:mt-16 mb-4 sm:mb-8 bg-white pt-0 pb-2 px-2 sm:px-4"
     >
-      <div className="max-w-3xl mx-auto">
-        <div className="bg-white border border-gray-200 rounded-xl shadow-sm overflow-hidden">
-          {/* Header */}
-          <div className="bg-[#0070f3] p-4">
+      <div className="max-w-5xl mx-auto">
+        <div className="bg-white rounded-xl shadow-lg overflow-hidden">
+          <div className="bg-gradient-to-r from-[#0070f3] to-[#5f3dc4] p-3 sm:p-4 rounded-t-xl relative">
             <div className="flex justify-between items-center">
-              <div>
-                <h2 className="font-medium text-white text-lg">LeadPilot Assistant</h2>
-                <p className="text-xs text-white/80">Answer a few questions to generate your personalized outreach</p>
-              </div>
+              <h2 className="font-medium text-white text-base sm:text-lg">LeadPilot Assistant</h2>
               <button 
                 onClick={onClose}
-                className="text-white/80 hover:text-white"
-                aria-label="Close"
+                className="text-white/80 hover:text-white transition-colors focus:outline-none"
+                aria-label="Close chat"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                   <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
@@ -108,128 +132,138 @@ export default function ChatForm({ onClose }: ChatFormProps) {
               </button>
             </div>
           </div>
-          
-          {/* Question and Answer Area */}
-          <div className="p-6 space-y-8">
-            {/* Previous Questions and Answers - Displayed as pairs in sequence */}
-            {Array.from({ length: currentQuestionIndex }).map((_, index) => (
-              <div key={`qa-${index}`} className="space-y-4">
-                {/* Question */}
-                <div className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-[#0070f3] rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="bg-gray-100 rounded-lg p-4 text-gray-800 max-w-[80%]">
-                    <p className="font-medium">{questions[index]}</p>
-                  </div>
-                </div>
-                
-                {/* Answer */}
-                <div className="flex items-start justify-end space-x-4 pl-14">
-                  <div className="bg-[#0070f3] rounded-lg p-4 text-white max-w-[80%] font-medium">
-                    <p>{answers[index]}</p>
-                  </div>
-                  <div className="w-10 h-10 bg-gray-200 rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-500" viewBox="0 0 20 20" fill="currentColor">
-                      <path fillRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                </div>
+
+          {isComplete ? (
+            <div className="space-y-6 p-4">
+              <div className="text-center">
+                <h3 className="font-bold text-xl text-gray-900">Ready to Generate Your Leads</h3>
+                <p className="text-gray-600 mt-1">We'll use your responses to create personalized outreach campaigns.</p>
+                <ul className="space-y-2 mt-4">
+                  {questions.map((question, idx) => (
+                    <li key={idx} className="flex">
+                      <span className="font-medium text-gray-700 mr-2">{idx + 1}.</span>
+                      <div>
+                        <p className="text-sm text-gray-600">{question}</p>
+                        <p className="font-medium text-gray-900">{answers[idx]}</p>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               </div>
-            ))}
-            
-            {/* Current Question or Final Screen */}
-            {isComplete ? (
-              <div className="space-y-6 py-4">
-                <div className="text-center">
-                  <h3 className="text-xl font-semibold text-gray-800 mb-4">Thank you for your responses!</h3>
-                  <p className="text-gray-600 mb-6">We've collected all the information needed to generate leads and create personalized outreach messages.</p>
-                  
-                  <button
-                    onClick={handleFinalSubmit}
-                    className="bg-[#0070f3] text-white px-6 py-3 rounded-md hover:bg-[#0060d3] transition-colors font-medium"
-                  >
-                    Generate My Leads
-                  </button>
-                </div>
+              
+              <div className="text-center">
+                <button
+                  onClick={handleFinalSubmit}
+                  className="bg-[#0070f3] text-white px-6 py-3 rounded-lg font-medium hover:bg-[#0060d3] transition-colors"
+                >
+                  Submit
+                </button>
               </div>
-            ) : (
-              <div className="space-y-4">
-                <div className="flex items-start space-x-4">
-                  <div className="w-10 h-10 bg-[#0070f3] rounded-full flex items-center justify-center flex-shrink-0">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
-                      <path d="M10 12a2 2 0 100-4 2 2 0 000 4z" />
-                      <path fillRule="evenodd" d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z" clipRule="evenodd" />
-                    </svg>
-                  </div>
-                  <div className="bg-gray-100 rounded-lg p-4 text-gray-800 max-w-[80%]">
-                    <p className="font-medium">{questions[currentQuestionIndex]}</p>
-                  </div>
-                </div>
-                
-                {/* Input Area with Suggestions */}
-                <form onSubmit={handleSubmit} className="flex flex-col space-y-3 pl-14">
-                  {/* Suggestions */}
-                  <div className="flex flex-wrap gap-2 mb-2">
-                    {suggestions[currentQuestionIndex as keyof typeof suggestions]?.map((suggestion, idx) => (
-                      <button
-                        key={idx}
-                        type="button"
-                        onClick={() => handleSuggestionClick(suggestion)}
-                        className="px-4 py-2 text-sm bg-gray-100 text-gray-800 font-medium rounded-md hover:bg-gray-200 border border-gray-300 hover:border-gray-400 transition-colors whitespace-nowrap shadow-sm hover:shadow"
+            </div>
+          ) : (
+            <>
+              <div 
+                ref={chatContainerRef}
+                className="p-3 sm:p-4 overflow-y-auto max-h-[300px] sm:max-h-[400px] scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100"
+              >
+                <AnimatePresence>
+                  {Array.from({ length: currentQuestionIndex + 1 }).map((_, idx) => (
+                    <motion.div 
+                      key={idx} 
+                      className="space-y-4 mb-4"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ duration: 0.3, delay: idx * 0.1 }}
+                    >
+                      <motion.div 
+                        className="flex items-start space-x-3 overflow-hidden"
+                        initial={{ opacity: 0, x: -10 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.3, delay: idx * 0.1 + 0.1 }}
                       >
-                        {suggestion}
-                      </button>
-                    ))}
-                  </div>
-                  
-                  <div className="flex items-center">
+                        <div className="w-8 h-8 bg-[#0070f3] rounded-md flex items-center justify-center flex-shrink-0">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-white" viewBox="0 0 20 20" fill="currentColor">
+                            <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                          </svg>
+                        </div>
+                        <div className="bg-gray-100 rounded-lg px-4 py-2 text-gray-800 max-w-[80%]">
+                          <p>{questions[idx]}</p>
+                        </div>
+                      </motion.div>
+                      
+                      {idx === currentQuestionIndex && (
+                        <motion.div 
+                          className="flex flex-wrap gap-2 mt-2 ml-11"
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          transition={{ duration: 0.3, delay: 0.3 }}
+                        >
+                          {suggestions[idx as keyof typeof suggestions].map((suggestion, suggestionIdx) => (
+                            <motion.button
+                              key={suggestionIdx}
+                              type="button"
+                              onClick={() => handleSuggestionClick(suggestion)}
+                              className="px-4 py-1.5 text-sm bg-gray-100 text-gray-800 rounded-full hover:bg-gray-200 transition-colors whitespace-nowrap"
+                              initial={{ opacity: 0, y: 10 }}
+                              animate={{ opacity: 1, y: 0 }}
+                              transition={{ duration: 0.2, delay: 0.3 + (suggestionIdx * 0.05) }}
+                            >
+                              {suggestion}
+                            </motion.button>
+                          ))}
+                        </motion.div>
+                      )}
+                      
+                      {idx < currentQuestionIndex && answers[idx] && (
+                        <motion.div 
+                          className="flex items-start justify-end space-x-3 overflow-hidden"
+                          initial={{ opacity: 0, x: 10 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.3, delay: idx * 0.1 + 0.2 }}
+                        >
+                          <div className="bg-blue-100 rounded-full px-4 py-2 text-blue-800">
+                            <p>{answers[idx]}</p>
+                          </div>
+                          <div className="w-8 h-8 bg-indigo-100 rounded-full flex items-center justify-center flex-shrink-0">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-indigo-500" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-6-3a2 2 0 11-4 0 2 2 0 014 0zm-2 4a5 5 0 00-4.546 2.916A5.986 5.986 0 0010 16a5.986 5.986 0 004.546-2.084A5 5 0 0010 11z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                        </motion.div>
+                      )}
+                    </motion.div>
+                  ))}
+                </AnimatePresence>
+              </div>
+              
+              <div className="sticky bottom-0 bg-white border-t border-gray-100 pt-2 pb-2 px-3 sm:px-4">
+                <form onSubmit={handleSubmit} className="flex items-center gap-2 sm:gap-3">
+                  <div className="flex-grow">
                     <input
                       ref={inputRef}
                       type="text"
                       value={inputValue}
                       onChange={handleInputChange}
-                      placeholder="Type your response..."
-                      className="flex-grow p-3 border border-gray-300 rounded-l-lg focus:outline-none focus:ring-2 focus:ring-[#0070f3] focus:border-transparent text-black font-medium"
-                      autoFocus
+                      placeholder="Type your answer..."
+                      className="w-full p-3 sm:p-4 border border-gray-200 rounded-full focus:outline-none focus:ring-1 focus:ring-[#0070f3] focus:border-transparent text-black shadow-lg text-sm sm:text-base"
+                      autoComplete="off"
+                      autoCapitalize="sentences"
                     />
+                  </div>
+                  <div>
                     <button
                       type="submit"
-                      className="bg-[#0070f3] text-white p-3 rounded-r-lg hover:bg-[#0060d3] transition-colors"
-                      disabled={!inputValue.trim()}
+                      className="bg-gradient-to-r from-[#0070f3] to-[#2563eb] text-white px-5 sm:px-8 py-3 sm:py-4 rounded-full hover:from-[#0060d3] hover:to-[#1e40af] transition-colors shadow-lg text-sm sm:text-base whitespace-nowrap"
                     >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
+                      Submit
                     </button>
                   </div>
                 </form>
               </div>
-            )}
-          </div>
-          
-          {/* Progress bar footer */}
-          <div className="p-4 border-t border-gray-200 bg-gray-50">
-            <div className="flex justify-between items-center text-sm text-gray-500">
-              <span>
-                {isComplete ? 
-                  "All questions completed!" : 
-                  `Question ${currentQuestionIndex + 1} of ${questions.length}`
-                }
-              </span>
-              <div className="w-48 bg-gray-200 rounded-full h-2">
-                <div 
-                  className="bg-[#0070f3] h-2 rounded-full" 
-                  style={{ width: `${isComplete ? 100 : ((currentQuestionIndex + 1) / questions.length) * 100}%` }}
-                ></div>
-              </div>
-            </div>
-          </div>
+            </>
+          )}
         </div>
       </div>
     </div>
   );
-} 
+}

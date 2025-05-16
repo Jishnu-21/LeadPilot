@@ -203,27 +203,24 @@ export default function Banner({ onStartDemo }: BannerProps) {
   ];
   
   return (
-    <div className="py-16 min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-white">
-      {/* Clean white background with subtle pattern */}
-      <div className="absolute inset-0 bg-white z-0"></div>
-      
-      {/* Subtle grid pattern overlay */}
-      <div className="absolute inset-0 z-0 opacity-5" 
+    <div className="min-h-screen flex flex-col items-center justify-center relative overflow-hidden bg-white pt-16 pb-8 md:py-0">
+      {/* Background with blue wave pattern */}
+      <div 
+        className="absolute inset-0 z-0"
         style={{
-          backgroundImage: `linear-gradient(var(--electric-blue) 1px, transparent 1px), linear-gradient(90deg, var(--electric-blue) 1px, transparent 1px)`,
-          backgroundSize: '40px 40px'
-        }}>
-      </div>
+          backgroundImage: `url('/images/wave-bg.png')`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center bottom',
+          backgroundRepeat: 'no-repeat',
+          opacity: 0.7
+        }}
+      ></div>
       
-      {/* Subtle accent elements */}
-      <div className="absolute top-1/4 right-1/4 w-96 h-96 bg-[#0070f3]/5 rounded-full blur-[100px] z-0 animate-pulse"></div>
-      <div className="absolute bottom-1/4 left-1/3 w-96 h-96 bg-[#0070f3]/5 rounded-full blur-[100px] z-0 animate-pulse" style={{animationDelay: '1s'}}></div>
-      
-      {/* Subtle divider */}
-      <div className="absolute top-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-[#0070f3]/20 to-transparent"></div>
+      {/* More noticeable drop shadow at the very end */}
+      <div className="absolute -bottom-12 left-0 right-0 h-24 bg-gradient-to-t from-white/20 to-transparent z-0"></div>
       
       <motion.div 
-        className="max-w-4xl w-full mx-auto px-4 sm:px-6 relative z-10"
+        className="max-w-5xl w-full mx-auto px-4 sm:px-6 py-12 sm:py-16 md:py-20 relative z-10"
         initial="hidden"
         whileInView="visible"
         viewport={{ once: true, amount: 0.2 }}
@@ -231,37 +228,28 @@ export default function Banner({ onStartDemo }: BannerProps) {
       >
         {/* Welcome Section (Centered) */}
         <motion.div 
-          className="text-center mb-16"
+          className="text-center mx-auto"
           variants={itemVariants}
         >
-          <motion.div 
-            className="inline-block px-4 py-1 bg-[#0070f3]/10 text-[#0070f3] rounded-full text-sm mb-4 font-medium"
-            initial={{ opacity: 0, y: -20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
-          >
-            Try for free now →
-          </motion.div>
+          <h1 className="font-medium leading-none mb-6 font-inter">
+            <span className="block text-5xl sm:text-6xl md:text-7xl lg:text-8xl mb-2 text-black tracking-wider">Introducing</span>
+            <span className="block text-5xl sm:text-6xl md:text-7xl lg:text-8xl bg-gradient-to-r from-[#4299e1] to-[#667eea] bg-clip-text text-transparent font-semibold">the LeadPilot<span className="text-purple-500">.</span></span>
+          </h1>
           
-          <h1 className="text-4xl md:text-6xl lg:text-7xl font-bold text-black tracking-tight leading-none mb-6">
-            Introducing the <span className="text-[#0070f3]">LeadPilot</span>
-              </h1>
-          
-          <p className="text-lg md:text-xl text-black max-w-2xl mx-auto mb-10">
+          <p className="text-lg sm:text-xl md:text-2xl text-gray-700 max-w-2xl mx-auto mb-6 sm:mb-10 font-inter">
             LeadPilot helps you discover real companies and send personalized GPT outreach – instantly.
           </p>
-          
-          <motion.button
-            onClick={startDemo}
-            className="inline-flex cursor-pointer items-center bg-[#0070f3] text-white px-8 py-3 rounded-md hover:bg-[#0060d3] transition-all duration-300 font-medium text-base"
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-          >
-            Start Demo
-                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-2" viewBox="0 0 20 20" fill="currentColor">
-                  <path fillRule="evenodd" d="M10.293 5.293a1 1 0 011.414 0l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414-1.414L12.586 11H5a1 1 0 110-2h7.586l-2.293-2.293a1 1 0 010-1.414z" clipRule="evenodd" />
-                </svg>
-          </motion.button>
+                    
+          <div className="flex justify-center">
+            <motion.button
+              onClick={startDemo}
+              className="inline-flex cursor-pointer items-center bg-[#0070f3] text-white px-6 sm:px-8 py-2.5 sm:py-3 rounded-md hover:bg-[#0060d3] transition-all duration-300 font-medium text-base sm:text-lg shadow-lg font-inter uppercase"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+            >
+              START DEMO
+            </motion.button>
+          </div>
         </motion.div>
       </motion.div>
     </div>

@@ -11,80 +11,79 @@ export default function Features() {
     visible: {
       opacity: 1,
       transition: {
-        staggerChildren: 0.1,
-        delayChildren: 0.2,
-        duration: 0.5
+        staggerChildren: 0.05, // Faster stagger for mobile
+        delayChildren: 0.1, // Reduced delay for mobile
+        duration: 0.4
       }
     }
   };
 
   const itemVariants = {
-    hidden: { y: 30, opacity: 0 },
+    hidden: { y: 20, opacity: 0 },
     visible: {
       y: 0,
       opacity: 1,
-      transition: { duration: 0.5, ease: "easeOut" }
+      transition: { duration: 0.4, ease: "easeOut" }
     }
   };
 
   const cardHoverVariants = {
     hover: {
       y: -10,
-      boxShadow: "0 20px 25px -5px rgba(0, 67, 115, 0.1), 0 10px 10px -5px rgba(0, 67, 115, 0.04)",
+      boxShadow: "0 20px 25px -5px rgba(0, 112, 243, 0.1), 0 10px 10px -5px rgba(0, 112, 243, 0.04)",
       transition: { duration: 0.3 }
     }
   };
-  // Electric Blue: #0063B2
-  // Navy: #004173
-  // Slate: #6E8898
-  // Light Slate: #A3B8CC
-  // White: #FFFFFF
+  
+  // Banner colors
+  // Primary: #0070f3 (from Banner button)
+  // Gradient: from-[#4299e1] to-[#667eea] (from Banner text)
 
   const features = [
     {
-      icon: <Search size={24} color="#0063B2" />,
+      icon: <Search size={24} color="#0070f3" />,
       title: "Find Real Leads",
       description: "Discover companies matching your target criteria based on profession, industry, and region."
     },
     {
-      icon: <MessageSquare size={24} color="#0063B2" />,
+      icon: <MessageSquare size={24} color="#0070f3" />,
       title: "Generate AI Text",
       description: "Create personalized messages tailored to each lead with our advanced AI technology."
     },
     {
-      icon: <Mail size={24} color="#0063B2" />,
+      icon: <Mail size={24} color="#0070f3" />,
       title: "Multi-Channel Outreach",
       description: "Reach out via email, LinkedIn, Instagram, or contact forms - all from one platform."
     },
     {
-      icon: <BarChart3 size={24} color="#0063B2" />,
+      icon: <BarChart3 size={24} color="#0070f3" />,
       title: "Track Everything",
       description: "Monitor your outreach performance with detailed analytics and response tracking."
     },
     {
-      icon: <Zap size={24} color="#0063B2" />,
+      icon: <Zap size={24} color="#0070f3" />,
       title: "Automated Workflows",
       description: "Set up automated sequences to nurture leads through your sales pipeline."
     },
     {
-      icon: <Users size={24} color="#0063B2" />,
+      icon: <Users size={24} color="#0070f3" />,
       title: "Team Collaboration",
       description: "Work together with your team members to manage leads and campaigns efficiently."
     }
   ];
 
   return (
-    <section id="features" className="py-20 px-4 bg-gradient-to-b from-white to-[#A3B8CC]/10">
+    <section id="features" className="py-20 px-4 bg-gradient-to-b from-white to-[#4299e1]/5">
       <motion.div 
         className="max-w-6xl mx-auto"
         initial="hidden"
         whileInView="visible"
-        viewport={{ once: true, amount: 0.2 }}
+        viewport={{ once: true, amount: 0.1 }} /* Reduced threshold to trigger earlier */
         variants={containerVariants}
       >
         <motion.div className="text-center mb-16" variants={itemVariants}>
-          <h2 className="text-4xl font-bold text-[#004173] mb-4">How LeadPilot Works</h2>
-          <p className="text-lg text-[#6E8898] max-w-2xl mx-auto">
+          <h2 className="text-4xl font-bold text-gray-900 mb-4">How LeadPilot Works</h2>
+          <p className="text-lg text-gray-700 max-w-2xl mx-auto">
             Our AI-powered platform helps you find and connect with potential clients through multiple channels
           </p>
         </motion.div>
@@ -95,20 +94,23 @@ export default function Features() {
               key={index}
               className="bg-white rounded-xl shadow-lg p-8 flex flex-col items-start"
               variants={itemVariants}
-              whileHover={{ y: -10, boxShadow: "0 20px 25px -5px rgba(0, 67, 115, 0.1), 0 10px 10px -5px rgba(0, 67, 115, 0.04)" }}
+              whileHover={{ y: -10, boxShadow: "0 20px 25px -5px rgba(0, 112, 243, 0.15), 0 10px 10px -5px rgba(0, 112, 243, 0.1)" }}
               transition={{ type: "spring", stiffness: 300 }}
+              /* Custom viewport setting for each card to load faster on mobile */
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
             >
-              <div className="w-16 h-16 rounded-full bg-[#0063B2]/10 flex items-center justify-center mb-6">
+              <div className="w-16 h-16 rounded-full bg-[#0070f3]/10 flex items-center justify-center mb-6">
                 {feature.icon}
               </div>
-              <h3 className="text-xl font-bold text-[#004173] mb-3">{feature.title}</h3>
-              <p className="text-[#6E8898]">{feature.description}</p>
+              <h3 className="text-xl font-bold text-gray-900 mb-3">{feature.title}</h3>
+              <p className="text-gray-700">{feature.description}</p>
             </motion.div>
           ))}
         </motion.div>
 
         <motion.div 
-          className="mt-20 bg-gradient-to-r from-[#0063B2] to-[#004173] rounded-xl overflow-hidden shadow-xl"
+          className="mt-20 bg-gradient-to-r from-[#0070f3] to-[#667eea] rounded-xl overflow-hidden shadow-xl"
           variants={itemVariants}
         >
           <div className="flex flex-col md:flex-row">
@@ -126,7 +128,7 @@ export default function Features() {
               <div>
                 <motion.a 
                   href="#" 
-                  className="inline-block bg-white text-[#004173] font-bold py-3 px-8 rounded-full hover:bg-[#A3B8CC] transition-all shadow-md"
+                  className="inline-block bg-white text-[#0070f3] font-bold py-3 px-8 rounded-full hover:bg-gray-100 transition-all shadow-md"
                   whileHover={{ scale: 1.05 }}
                   whileTap={{ scale: 0.95 }}
                 >
